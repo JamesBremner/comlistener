@@ -17,6 +17,17 @@ using namespace boost::asio;
 std::vector< unsigned char > vBuffer;    // transer data from asio thread to nana thread
 std::mutex mutex;                       // protect tranfer buffer from data races
 
+class cGUI
+{
+public:
+    cGUI();
+    void StartTimer();
+    void OnTimer();     /// check for new data received by asio thread
+private:
+    nana::form  fm;
+    nana::timer t;      /// timer to trigger checks for new data received by the asio thread
+};
+
 class cAsioThread
 {
 public:
@@ -54,13 +65,14 @@ private:
     unsigned char myRcvBuffer[ EXPECTED_BYTES ];
 };
 
-void ConstructGUI()
+cGUI::cGUI()
+    : fm(nana::rectangle( 100,100, 300, 300 ) )
 {
-    nana::form * fm = new nana::form(nana::rectangle( 100,100, 300, 300 ));
-    fm->show();
+    fm.show();
+    StartTimer();
 }
 
-void OnTimer()
+void cGUI::OnTimer()
 {
     nana::msgbox msg("Data Received");
     {
@@ -77,15 +89,14 @@ void OnTimer()
     msg.show();
 }
 
-void StartTimer()
+void cGUI::StartTimer()
 {
-    nana::timer * t = new nana::timer();
-    t->interval( 100 );
-    t->elapse( []()
+    t.interval( 100 );
+    t.elapse( [this]()
     {
         OnTimer();
     });
-    t->start();
+    t.start();
 }
 
 cAsioThread::cAsioThread( char* port )
@@ -97,11 +108,12 @@ cAsioThread::cAsioThread( char* port )
     std::this_thread::sleep_for (std::chrono::seconds( 3 ));
     bool ok = false;
     if( myPort )
-    if( myPort->is_open() )
+        if( myPort->is_open() )
+        {
+            ok = true;
+        }
+    if( ! ok )
     {
-        ok = true;
-    }
-    if( ! ok ) {
         std::cout << "Failed to open COM port\n";
         exit(1);
     }
@@ -185,9 +197,7 @@ int main( int argc, char* argv[] )
     }
     cAsioThread theAsioThread( argv[1] );
 
-    ConstructGUI();
-
-    StartTimer();
+    cGUI GUI;
 
     nana::exec();
 
