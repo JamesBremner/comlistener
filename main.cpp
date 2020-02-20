@@ -91,7 +91,7 @@ void cGUI::OnTimer()
 
 void cGUI::StartTimer()
 {
-    t.interval( 100 );
+    t.interval( std::chrono::milliseconds( 100 ) );
     t.elapse( [this]()
     {
         OnTimer();
