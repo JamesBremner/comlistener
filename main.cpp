@@ -3,9 +3,9 @@
 #include <mutex>
 #include <chrono>
 #include <iostream>
-
-#include <nana/gui.hpp>
-#include  <nana/gui/timer.hpp>
+#include <sstream>
+#include <winsock2.h>
+#include "wex.h"
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -14,7 +14,7 @@ using namespace boost::asio;
 
 #define EXPECTED_BYTES 128
 
-std::vector< unsigned char > vBuffer;    // transer data from asio thread to nana thread
+std::vector< unsigned char > vBuffer;    // transer data from asio thread to GUI thread
 std::mutex mutex;                       // protect tranfer buffer from data races
 
 class cGUI
@@ -24,8 +24,8 @@ public:
     void StartTimer();
     void OnTimer();     /// check for new data received by asio thread
 private:
-    nana::form  fm;
-    nana::timer t;      /// timer to trigger checks for new data received by the asio thread
+    wex::gui& form;
+    wex::timer* t;      /// timer to trigger checks for new data received by the asio thread
 };
 
 class cAsioThread
@@ -66,37 +66,32 @@ private:
 };
 
 cGUI::cGUI()
-    : fm(nana::rectangle( 100,100, 300, 300 ) )
+    : form( wex::maker::make() )
+    , t( new wex::timer( form, 500 ))
 {
-    fm.show();
-    StartTimer();
+    form.move({ 50,50,400,500});
+    form.text("NSP3 Talker");
+    form.show();
+    form.events().timer([this]
+    {
+        OnTimer();
+    });
+    form.run();
 }
 
 void cGUI::OnTimer()
 {
-    nana::msgbox msg("Data Received");
-    {
-        std::lock_guard<std::mutex> lck (mutex);
+    std::lock_guard<std::mutex> lck (mutex);
 
-        if( !vBuffer.size() )
-            return;
+    if( !vBuffer.size() )
+        return;
 
-        msg << vBuffer.size() << " bytes";
+    std::stringstream msg;
+    msg << vBuffer.size() << " bytes";
 
-        vBuffer.clear();
-    }
+    vBuffer.clear();
 
-    msg.show();
-}
-
-void cGUI::StartTimer()
-{
-    t.interval( std::chrono::milliseconds( 100 ) );
-    t.elapse( [this]()
-    {
-        OnTimer();
-    });
-    t.start();
+    wex::msgbox( form, msg.str() );
 }
 
 cAsioThread::cAsioThread( char* port )
@@ -121,11 +116,11 @@ cAsioThread::cAsioThread( char* port )
 void cAsioThread::Connect()
 {
 #ifdef DEBUG_NO_COM
-//    while( true )
-//    {
-//        std::this_thread::sleep_for (std::chrono::seconds(1));
-//        OnRead();
-//    }
+    while( true )
+    {
+        std::this_thread::sleep_for (std::chrono::seconds(1));
+        OnRead();
+    }
 #else
 
     try
@@ -136,7 +131,7 @@ void cAsioThread::Connect()
     }
     catch( boost::system::system_error& e )
     {
-        std::cout << e.what() << " Error opening port\n";
+        std::cout << e.what() << " Error opening port " << myPortNumber << "\n";
         myPort = 0;
         return;
     }
@@ -182,7 +177,7 @@ void cAsioThread::handle_read(
 {
     {
         std::lock_guard<std::mutex> lck (mutex);
-        for( int k = 0; k < bytes_received; k++ )
+        for( int k = 0; k < (int)bytes_received; k++ )
             vBuffer.push_back( myRcvBuffer[ k ] );
     }
     NextRead();
@@ -192,13 +187,11 @@ int main( int argc, char* argv[] )
 {
     if( argc != 2 )
     {
-        std::cout << "Usage: comlistener <com port number>\n";
+        std::cout << "Usage: nsp3Talker <com port number>\n";
         exit(1);
     }
     cAsioThread theAsioThread( argv[1] );
 
     cGUI GUI;
-
-    nana::exec();
 
 }
