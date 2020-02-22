@@ -15,7 +15,7 @@
 		</MakeCommands>
 		<Build>
 			<Target title="Debug">
-				<Option output="/bin/test" prefix_auto="1" extension_auto="1" />
+				<Option output="comlistene" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc_v83" />
@@ -41,14 +41,13 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add directory="$(#nana.include)" />
+			<Add directory="../../windex/include" />
 			<Add directory="$(#boost)" />
 		</Compiler>
 		<Linker>
 			<Add option="-static-libstdc++" />
 			<Add option="-static-libgcc" />
 			<Add option="-static" />
-			<Add library="nana" />
 			<Add library="stdc++fs" />
 			<Add library="gdi32" />
 			<Add library="comdlg32" />

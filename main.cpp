@@ -5,14 +5,14 @@
 #include <iostream>
 #include <sstream>
 #include <winsock2.h>
-#include "wex.h"
+ #include "wex.h"
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
 using namespace boost::asio;
 
-#define EXPECTED_BYTES 128
+#define EXPECTED_BYTES 5
 
 std::vector< unsigned char > vBuffer;    // transer data from asio thread to GUI thread
 std::mutex mutex;                       // protect tranfer buffer from data races
@@ -70,7 +70,7 @@ cGUI::cGUI()
     , t( new wex::timer( form, 500 ))
 {
     form.move({ 50,50,400,500});
-    form.text("NSP3 Talker");
+    form.text("ComListener");
     form.show();
     form.events().timer([this]
     {
@@ -148,7 +148,8 @@ void cAsioThread::Connect()
 
     NextRead();
 
-    return;
+    myEventManager.run();
+
 #endif // DEBUG_NO_COM
 }
 
@@ -175,6 +176,7 @@ void cAsioThread::handle_read(
     const boost::system::error_code& error,
     std::size_t bytes_received )
 {
+    std::cout << bytes_received << " bytes received\n";
     {
         std::lock_guard<std::mutex> lck (mutex);
         for( int k = 0; k < (int)bytes_received; k++ )
