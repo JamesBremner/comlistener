@@ -15,7 +15,7 @@
 		</MakeCommands>
 		<Build>
 			<Target title="Debug">
-				<Option output="comlistene" prefix_auto="1" extension_auto="1" />
+				<Option output="comlistener" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc_v83" />
@@ -26,7 +26,7 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="/bin/comlistener" prefix_auto="1" extension_auto="1" />
+				<Option output="comlistener" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc_v83" />
@@ -41,7 +41,7 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add directory="../../windex/include" />
+			<Add directory="../windex/include" />
 			<Add directory="$(#boost)" />
 		</Compiler>
 		<Linker>

@@ -26,6 +26,7 @@ public:
 private:
     wex::gui& form;
     wex::timer* t;      /// timer to trigger checks for new data received by the asio thread
+    wex::label& lbl;
 };
 
 class cAsioThread
@@ -68,9 +69,14 @@ private:
 cGUI::cGUI()
     : form( wex::maker::make() )
     , t( new wex::timer( form, 500 ))
+    , lbl( wex::maker::make<wex::label>( form ))
 {
     form.move({ 50,50,400,500});
     form.text("ComListener");
+
+    lbl.move( 30,30, 300, 40 );
+    lbl.text("");
+
     form.show();
     form.events().timer([this]
     {
@@ -85,13 +91,16 @@ void cGUI::OnTimer()
 
     if( !vBuffer.size() )
         return;
+    vBuffer.push_back( 0 );
 
     std::stringstream msg;
-    msg << vBuffer.size() << " bytes";
+    msg << vBuffer.size()-1 << " bytes rcvd: " << (char*)vBuffer.data();
 
     vBuffer.clear();
 
-    wex::msgbox( form, msg.str() );
+    //wex::msgbox( form, msg.str() );
+    lbl.text( msg.str() );
+    lbl.update();
 }
 
 cAsioThread::cAsioThread( char* port )
