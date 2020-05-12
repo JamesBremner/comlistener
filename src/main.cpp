@@ -78,7 +78,7 @@ cGUI::cGUI()
     lbl.text("");
 
     form.show();
-    form.events().timer([this]
+    form.events().timer([this](int id)
     {
         OnTimer();
     });
