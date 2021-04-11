@@ -42,13 +42,10 @@
 			<Add library="comdlg32" />
 			<Add library="ws2_32" />
 		</Linker>
-		<Unit filename="../../../demo/com.cpp" />
 		<Unit filename="../../../include/com.h" />
 		<Unit filename="../../../include/wex.h" />
+		<Unit filename="../../src/comListener.cpp" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>
