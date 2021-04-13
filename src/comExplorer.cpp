@@ -44,7 +44,8 @@ cGUI::cGUI()
             myTalker.open();
             if( ! myTalker.isOpen() )
             {
-                ss << "Open failed on COM" << kport;
+                ss << myTalker.errorMsg() << "\n";
+
             }
             else
             {
