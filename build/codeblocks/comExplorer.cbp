@@ -42,8 +42,8 @@
 			<Add library="comdlg32" />
 			<Add library="ws2_32" />
 		</Linker>
-		<Unit filename="../../../include/com.h" />
-		<Unit filename="../../../include/wex.h" />
+		<Unit filename="../../../windex/include/com.h" />
+		<Unit filename="../../../windex/include/wex.h" />
 		<Unit filename="../../src/comExplorer.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />

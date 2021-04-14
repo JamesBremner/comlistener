@@ -29,6 +29,7 @@ cGUI::cGUI()
     myConnectbn.move( 210, 20, 100,30);
     myConnectbn.bgcolor(0x9090FF);
     myConnectbn.text("Connect");
+    myConnectbn.tooltip("Click to test COM ports 1 to 12");
 
     myRcvList.move( 20,70, 400,300 );
 
